@@ -65,7 +65,9 @@ export async function annotateGithub(
             path: current.fileName,
             start_line: lineNumber,
             end_line: lineNumber,
-            annotation_level: 'notice',
+            start_column: 1,
+            end_column: 1,
+            annotation_level: 'warning',
             message: 'this line is not covered by test'
           })
         })
