@@ -44,8 +44,11 @@ function run() {
             const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
             const LCOV_FILE_PATH = core.getInput('LCOV_FILE_PATH');
             const parsedCov = yield (0, util_1.parseLCov)(LCOV_FILE_PATH);
+            core.info('Parsing done');
             const coverageByFile = (0, util_1.filterCoverageByFile)(parsedCov);
+            core.info('Filter done');
             yield (0, util_1.annotateGithub)(coverageByFile, GITHUB_TOKEN);
+            core.info('Annotation done');
         }
         catch (error) {
             if (error instanceof Error)
@@ -141,7 +144,9 @@ function annotateGithub(coverageFiles, githubToken) {
                     current.missingLineNumbers.map(lineNumber => {
                         old.push({
                             path: current.fileName,
-                            line: lineNumber,
+                            start_line: lineNumber,
+                            name: 'Coverage Checker',
+                            end_line: lineNumber,
                             annotation_level: 'notice',
                             message: 'this line is not covered by test'
                         });
