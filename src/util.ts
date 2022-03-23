@@ -95,8 +95,8 @@ export async function annotateGithub(
 
   const octokit = new Octokit({auth: githubToken})
   const pullRequestFiles = await getPullRequestFiles(octokit)
-  const logs: Object[] = []
   const annotations: Annotations[] = []
+  let count = 10
   for (const current of coverageFiles) {
     // Only annotate relevant files
     const log = {}
@@ -117,9 +117,11 @@ export async function annotateGithub(
       log['missingNumbers'] = current.missingLineNumbers.length
       log['annotationsSize'] = annotations.length
     }
-    logs.push(log)
+    if (count > 0) {
+      core.info(JSON.stringify(log))
+      count -= 1
+    }
   }
-  core.info(JSON.stringify(logs))
   core.info(`Annotation count: ${annotations.length}`)
   core.info(JSON.stringify(annotations.splice(0, 5)))
   const response = await octokit.rest.checks.create({

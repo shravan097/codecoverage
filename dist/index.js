@@ -181,8 +181,8 @@ function annotateGithub(coverageFiles, githubToken) {
             : github.context.ref.replace('refs/heads/', '');
         const octokit = new octokit_1.Octokit({ auth: githubToken });
         const pullRequestFiles = yield getPullRequestFiles(octokit);
-        const logs = [];
         const annotations = [];
+        let count = 10;
         for (const current of coverageFiles) {
             // Only annotate relevant files
             const log = {};
@@ -203,9 +203,11 @@ function annotateGithub(coverageFiles, githubToken) {
                 log['missingNumbers'] = current.missingLineNumbers.length;
                 log['annotationsSize'] = annotations.length;
             }
-            logs.push(log);
+            if (count > 0) {
+                core.info(JSON.stringify(log));
+                count -= 1;
+            }
         }
-        core.info(JSON.stringify(logs));
         core.info(`Annotation count: ${annotations.length}`);
         core.info(JSON.stringify(annotations.splice(0, 5)));
         const response = yield octokit.rest.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'Annotate', head_sha: ref, status: 'completed', conclusion: 'success', output: {
