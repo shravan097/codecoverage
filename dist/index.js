@@ -159,6 +159,7 @@ function annotateGithub(coverageFiles, githubToken) {
             throw Error('GITHUB_TOKEN is missing');
         }
         const pullRequest = github.context.payload.pull_request;
+        core.info(`Coverage files length ${coverageFiles === null || coverageFiles === void 0 ? void 0 : coverageFiles.length}`);
         core.info(`Pull request number ${github.context.issue.number}`);
         const ref = pullRequest
             ? pullRequest.head.ref

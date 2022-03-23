@@ -67,6 +67,7 @@ export async function annotateGithub(
     throw Error('GITHUB_TOKEN is missing')
   }
   const pullRequest = github.context.payload.pull_request
+  core.info(`Coverage files length ${coverageFiles?.length}`)
   core.info(`Pull request number ${github.context.issue.number}`)
   const ref = pullRequest
     ? pullRequest.head.ref
