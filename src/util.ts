@@ -55,7 +55,6 @@ export async function annotateGithub(
     name: 'Coverage Checker',
     status: 'completed',
     conclusion: 'success',
-    head_sha: github.context.sha,
     output: {
       title: 'Coverage Tool',
       summary: 'Missing Coverage',
