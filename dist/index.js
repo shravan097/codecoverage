@@ -182,30 +182,29 @@ function annotateGithub(coverageFiles, githubToken) {
         const octokit = new octokit_1.Octokit({ auth: githubToken });
         const pullRequestFiles = yield getPullRequestFiles(octokit);
         const logs = [];
-        const annotations = coverageFiles.reduce((old, current) => {
+        const annotations = [];
+        for (const current of coverageFiles) {
             // Only annotate relevant files
             const log = {};
             const fileNameFirstItem = getFileNameFirstItemFromPath(current === null || current === void 0 ? void 0 : current.fileName);
             log['fileName'] = fileNameFirstItem;
-            if (!fileNameFirstItem || !pullRequestFiles.has(fileNameFirstItem)) {
-                return old;
-            }
-            current.missingLineNumbers.map(lineNumber => {
-                old.push({
-                    path: current.fileName,
-                    start_line: lineNumber,
-                    end_line: lineNumber,
-                    start_column: 1,
-                    end_column: 1,
-                    annotation_level: 'warning',
-                    message: 'this line is not covered by test'
+            if (fileNameFirstItem && pullRequestFiles.has(fileNameFirstItem)) {
+                current.missingLineNumbers.map(lineNumber => {
+                    annotations.push({
+                        path: current.fileName,
+                        start_line: lineNumber,
+                        end_line: lineNumber,
+                        start_column: 1,
+                        end_column: 1,
+                        annotation_level: 'warning',
+                        message: 'this line is not covered by test'
+                    });
                 });
-            });
-            log['missingNumbers'] = current.missingLineNumbers.length;
-            log['oldSize'] = old.length;
+                log['missingNumbers'] = current.missingLineNumbers.length;
+                log['annotationsSize'] = annotations.length;
+            }
             logs.push(log);
-            return old;
-        }, []);
+        }
         core.info(JSON.stringify(logs));
         core.info(`Annotation count: ${annotations.length}`);
         core.info(JSON.stringify(annotations.splice(0, 5)));

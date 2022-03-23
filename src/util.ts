@@ -69,7 +69,15 @@ async function getPullRequestFiles(
   core.info(JSON.stringify(Array.from(mySet)?.splice(0, 10)))
   return mySet
 }
-
+type Annotations = {
+  path: string,
+  start_line: number,
+  end_line: number,
+  start_column: number,
+  end_column: number,
+  annotation_level: string,
+  message: string
+}
 export async function annotateGithub(
   coverageFiles: CoverageFile[],
   githubToken: string
@@ -88,30 +96,29 @@ export async function annotateGithub(
   const octokit = new Octokit({auth: githubToken})
   const pullRequestFiles = await getPullRequestFiles(octokit)
   const logs: Object[] = []
-  const annotations = coverageFiles.reduce((old, current) => {
+  const annotations: Annotations[] = []
+  for (const current of coverageFiles) {
     // Only annotate relevant files
     const log = {}
     const fileNameFirstItem = getFileNameFirstItemFromPath(current?.fileName)
     log['fileName'] = fileNameFirstItem
-    if (!fileNameFirstItem || !pullRequestFiles.has(fileNameFirstItem)) {
-      return old
-    }
-    current.missingLineNumbers.map(lineNumber => {
-      old.push({
-        path: current.fileName,
-        start_line: lineNumber,
-        end_line: lineNumber,
-        start_column: 1,
-        end_column: 1,
-        annotation_level: 'warning',
-        message: 'this line is not covered by test'
+    if (fileNameFirstItem && pullRequestFiles.has(fileNameFirstItem)) {
+      current.missingLineNumbers.map(lineNumber => {
+        annotations.push({
+          path: current.fileName,
+          start_line: lineNumber,
+          end_line: lineNumber,
+          start_column: 1,
+          end_column: 1,
+          annotation_level: 'warning',
+          message: 'this line is not covered by test'
+        })
       })
-    })
-    log['missingNumbers'] = current.missingLineNumbers.length
-    log['oldSize'] = old.length
+      log['missingNumbers'] = current.missingLineNumbers.length
+      log['annotationsSize'] = annotations.length
+    }
     logs.push(log)
-    return old
-  }, [] as unknown as [Object])
+  }
   core.info(JSON.stringify(logs))
   core.info(`Annotation count: ${annotations.length}`)
   core.info(JSON.stringify(annotations.splice(0, 5)))
