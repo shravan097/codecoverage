@@ -36,10 +36,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
 const util_1 = __nccwpck_require__(4024);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            if (github.context.eventName !== 'pull_request') {
+                core.info('Pull request not detected. Exiting early.');
+                return;
+            }
             core.info('Performing Code Coverage Analysis');
             const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
             const LCOV_FILE_PATH = core.getInput('LCOV_FILE_PATH');
@@ -47,8 +52,10 @@ function run() {
             core.info('Parsing done');
             const coverageByFile = (0, util_1.filterCoverageByFile)(parsedCov);
             core.info('Filter done');
-            yield (0, util_1.annotateGithub)(coverageByFile, GITHUB_TOKEN);
+            core.info(JSON.stringify(coverageByFile, null, 2));
+            const res = yield (0, util_1.annotateGithub)(coverageByFile, GITHUB_TOKEN);
             core.info('Annotation done');
+            core.info(JSON.stringify(res, null, 2));
         }
         catch (error) {
             if (error instanceof Error)
@@ -130,14 +137,12 @@ function annotateGithub(coverageFiles, githubToken) {
         if (!githubToken) {
             throw Error('GITHUB_TOKEN is missing');
         }
+        const pullRequest = github.context.payload.pull_request;
+        const ref = pullRequest
+            ? pullRequest.head.ref
+            : github.context.ref.replace('refs/heads/', '');
         const octokit = new octokit_1.Octokit({ auth: githubToken });
-        const response = yield octokit.rest.checks.create({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            status: 'completed',
-            conclusion: 'success',
-            head_sha: github.context.sha,
-            output: {
+        const response = yield octokit.rest.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'Annotate', head_sha: ref, status: 'completed', conclusion: 'success', output: {
                 title: 'Coverage Tool',
                 summary: 'Missing Coverage',
                 annotations: coverageFiles.reduce((old, current) => {
@@ -145,16 +150,16 @@ function annotateGithub(coverageFiles, githubToken) {
                         old.push({
                             path: current.fileName,
                             start_line: lineNumber,
-                            name: 'Coverage Checker',
                             end_line: lineNumber,
-                            annotation_level: 'notice',
+                            start_column: 1,
+                            end_column: 1,
+                            annotation_level: 'warning',
                             message: 'this line is not covered by test'
                         });
                     });
                     return old;
                 }, [])
-            }
-        });
+            } }));
         return response;
     });
 }

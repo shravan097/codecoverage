@@ -186,8 +186,6 @@ test('filterCoverageByFile', function () {
   console.log(JSON.stringify(x, null, 2))
 })
 
-
-
 // test('annotateGithub', async function () {
 //   const j = await annotateGithub('' as any, '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')
 // })
