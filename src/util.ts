@@ -50,9 +50,9 @@ export async function annotateGithub(
   }
   const octokit = new Octokit({auth: githubToken})
   const response = await octokit.rest.checks.create({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    name: 'Coverage Checker',
+    ...github.context.repo,
+    name: github.context.action,
+    head_sha: github.context.sha,
     status: 'completed',
     conclusion: 'success',
     output: {
