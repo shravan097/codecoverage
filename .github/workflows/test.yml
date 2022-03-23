@@ -28,7 +28,8 @@ jobs:
           npm run package
       - run: |
           npm run test:cov
-      - uses: ./
+      - if: ${{ github.event.issue.pull_request }}
+        uses: ./
         with:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           LCOV_FILE_PATH: "./coverage/lcov.info"
