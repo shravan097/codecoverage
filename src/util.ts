@@ -55,7 +55,7 @@ async function getPullRequestFiles(
     pull_number
   })
   core.info('Pull Request Files')
-  core.info(JSON.stringify(response.data.splice(5)))
+  core.info(JSON.stringify(response))
   const mySet = new Set<string>()
   response.data.map(item => mySet.add(item.filename))
   core.info(`Filename as a set ${mySet.size}`)

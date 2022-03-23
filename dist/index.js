@@ -149,7 +149,7 @@ function getPullRequestFiles(octokitClient) {
         const pull_number = github.context.issue.number;
         const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number }));
         core.info('Pull Request Files');
-        core.info(JSON.stringify(response.data.splice(5)));
+        core.info(JSON.stringify(response));
         const mySet = new Set();
         response.data.map(item => mySet.add(item.filename));
         core.info(`Filename as a set ${mySet.size}`);
