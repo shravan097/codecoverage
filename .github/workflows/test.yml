@@ -1,4 +1,4 @@
-name: 'build-test'
+name: 'build-test-coverage'
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          npm install
+          npm ci
       - run: |
           npm run all
   test: # make sure the action works on a clean machine without building
@@ -30,7 +30,8 @@ jobs:
           npm run test:cov
       - run: echo ${{ github.event.issue}}
       - run: echo ${{ github.sha}}
-      - uses: ./
+      - if: github.event_name == 'pull_request'
+        uses: ./
         with:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           LCOV_FILE_PATH: "./coverage/lcov.info"
