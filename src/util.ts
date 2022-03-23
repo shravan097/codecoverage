@@ -49,7 +49,7 @@ export function filterCoverageByFile(coverage: LCovParsed): CoverageFile[] {
 async function getPullRequestFiles(
   octokitClient: Octokit
 ): Promise<Set<string>> {
-  const pull_number = github.context.payload.pull_request?.number as number
+  const pull_number = github.context.issue.number
   const response = await octokitClient.rest.pulls.listFiles({
     ...github.context.repo,
     pull_number,

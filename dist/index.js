@@ -146,9 +146,8 @@ exports.filterCoverageByFile = filterCoverageByFile;
  * Todo update types
  *  */
 function getPullRequestFiles(octokitClient) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const pull_number = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number;
+        const pull_number = github.context.issue.number;
         const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number, per_page: 99 // only support 99 files
          }));
         return new Set(response.data.map(item => item.filename));
