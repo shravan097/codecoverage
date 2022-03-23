@@ -62,7 +62,9 @@ export async function annotateGithub(
         current.missingLineNumbers.map(lineNumber => {
           old.push({
             path: current.fileName,
-            line: lineNumber,
+            start_line: lineNumber,
+            name: 'Coverage Checker',
+            end_line: lineNumber,
             annotation_level: 'notice',
             message: 'this line is not covered by test'
           })
