@@ -66,7 +66,7 @@ async function getPullRequestFiles(
     if (fileNameFirstItem) mySet.add(fileNameFirstItem)
   }
   core.info(`Filename as a set ${mySet.size}`)
-  core.info(JSON.stringify([...mySet]?.splice(10)))
+  core.info(JSON.stringify(Array.from(mySet)?.splice(10)))
   return mySet
 }
 
@@ -79,7 +79,7 @@ export async function annotateGithub(
   }
   const pullRequest = github.context.payload.pull_request
   core.info(`Coverage files length ${coverageFiles?.length}`)
-  core.info(JSON.stringify([...coverageFiles]?.splice(10)))
+  core.info(JSON.stringify(coverageFiles?.splice(10)))
   core.info(`Pull request number ${github.context.issue.number}`)
   const ref = pullRequest
     ? pullRequest.head.ref

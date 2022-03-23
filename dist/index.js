@@ -163,19 +163,18 @@ function getPullRequestFiles(octokitClient) {
                 mySet.add(fileNameFirstItem);
         }
         core.info(`Filename as a set ${mySet.size}`);
-        core.info(JSON.stringify((_a = [...mySet]) === null || _a === void 0 ? void 0 : _a.splice(10)));
+        core.info(JSON.stringify((_a = Array.from(mySet)) === null || _a === void 0 ? void 0 : _a.splice(10)));
         return mySet;
     });
 }
 function annotateGithub(coverageFiles, githubToken) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         if (!githubToken) {
             throw Error('GITHUB_TOKEN is missing');
         }
         const pullRequest = github.context.payload.pull_request;
         core.info(`Coverage files length ${coverageFiles === null || coverageFiles === void 0 ? void 0 : coverageFiles.length}`);
-        core.info(JSON.stringify((_a = [...coverageFiles]) === null || _a === void 0 ? void 0 : _a.splice(10)));
+        core.info(JSON.stringify(coverageFiles === null || coverageFiles === void 0 ? void 0 : coverageFiles.splice(10)));
         core.info(`Pull request number ${github.context.issue.number}`);
         const ref = pullRequest
             ? pullRequest.head.ref
