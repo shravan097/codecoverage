@@ -52,11 +52,14 @@ async function getPullRequestFiles(
   const pull_number = github.context.issue.number
   const response = await octokitClient.rest.pulls.listFiles({
     ...github.context.repo,
-    pull_number,
-    per_page: 99 // only support 99 files
+    pull_number
   })
+  core.info('Pull Request Files')
   core.info(JSON.stringify(response.data.splice(5)))
-  return new Set(response.data.map(item => item.filename))
+  const mySet = new Set<string>()
+  response.data.map(item => mySet.add(item.filename))
+  core.info(`Filename as a set ${mySet.size}`)
+  return mySet
 }
 
 export async function annotateGithub(

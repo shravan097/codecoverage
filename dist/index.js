@@ -147,10 +147,13 @@ exports.filterCoverageByFile = filterCoverageByFile;
 function getPullRequestFiles(octokitClient) {
     return __awaiter(this, void 0, void 0, function* () {
         const pull_number = github.context.issue.number;
-        const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number, per_page: 99 // only support 99 files
-         }));
+        const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number }));
+        core.info('Pull Request Files');
         core.info(JSON.stringify(response.data.splice(5)));
-        return new Set(response.data.map(item => item.filename));
+        const mySet = new Set();
+        response.data.map(item => mySet.add(item.filename));
+        core.info(`Filename as a set ${mySet.size}`);
+        return mySet;
     });
 }
 function annotateGithub(coverageFiles, githubToken) {
