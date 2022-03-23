@@ -10,8 +10,10 @@ async function run(): Promise<void> {
     core.info('Parsing done')
     const coverageByFile = filterCoverageByFile(parsedCov)
     core.info('Filter done')
-    await annotateGithub(coverageByFile, GITHUB_TOKEN)
+    core.info(JSON.stringify(coverageByFile, null, 2))
+    const res = await annotateGithub(coverageByFile, GITHUB_TOKEN)
     core.info('Annotation done')
+    core.info(JSON.stringify(res, null, 2))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
