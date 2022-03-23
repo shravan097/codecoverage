@@ -19,6 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild the dist/ directory
+        run: |
+          npm run build
+          npm run package
+      - run: |
+          npm run test:cov
+      - run: echo ${{ github.event.issue}}
+      - run: echo ${{ github.sha}}
       - uses: ./
         with:
-          milliseconds: 1000
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          LCOV_FILE_PATH: "./coverage/lcov.info"

@@ -2,7 +2,11 @@ name: 'Your name here'
 description: 'Provide a description here'
 author: 'Your name or organization here'
 inputs:
-  milliseconds: # change this
+  GITHUB_TOKEN:
+    required: true
+    description: 'input description here'
+    default: 'default value if applicable'
+  LCOV_FILE_PATH:
     required: true
     description: 'input description here'
     default: 'default value if applicable'

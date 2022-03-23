@@ -48,13 +48,18 @@ export async function annotateGithub(
   if (!githubToken) {
     throw Error('GITHUB_TOKEN is missing')
   }
+  const pullRequest = github.context.payload.pull_request
+  const ref = pullRequest
+    ? pullRequest.head.ref
+    : github.context.ref.replace('refs/heads/', '')
+
   const octokit = new Octokit({auth: githubToken})
   const response = await octokit.rest.checks.create({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
+    ...github.context.repo,
+    name: 'Annotate',
+    head_sha: ref,
     status: 'completed',
     conclusion: 'success',
-    head_sha: github.context.sha,
     output: {
       title: 'Coverage Tool',
       summary: 'Missing Coverage',
@@ -62,8 +67,11 @@ export async function annotateGithub(
         current.missingLineNumbers.map(lineNumber => {
           old.push({
             path: current.fileName,
-            line: lineNumber,
-            annotation_level: 'notice',
+            start_line: lineNumber,
+            end_line: lineNumber,
+            start_column: 1,
+            end_column: 1,
+            annotation_level: 'warning',
             message: 'this line is not covered by test'
           })
         })
