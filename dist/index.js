@@ -140,22 +140,26 @@ function filterCoverageByFile(coverage) {
     });
 }
 exports.filterCoverageByFile = filterCoverageByFile;
+/** input: dist/index.test.ts --> output: index */
+function getFileNameFirstItemFromPath(path) {
+    var _a, _b;
+    const rawFileName = (_a = path === null || path === void 0 ? void 0 : path.split('/')) === null || _a === void 0 ? void 0 : _a.pop();
+    return (_b = rawFileName === null || rawFileName === void 0 ? void 0 : rawFileName.split('.')) === null || _b === void 0 ? void 0 : _b[0];
+}
 /**
  * https://docs.github.com/en/rest/reference/pulls#list-pull-requests-files
  * Todo update types
  *  */
 function getPullRequestFiles(octokitClient) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const pull_number = github.context.issue.number;
         const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number }));
-        core.info('Pull Request Files');
-        core.info(JSON.stringify(response));
+        core.info(`Pull Request Files Length: ${response.data.length}`);
         const mySet = new Set();
         for (const item of response.data) {
-            const rawFileName = (_b = (_a = item === null || item === void 0 ? void 0 : item.filename) === null || _a === void 0 ? void 0 : _a.split('/')) === null || _b === void 0 ? void 0 : _b.pop();
-            if (rawFileName)
-                mySet.add(rawFileName);
+            const fileNameFirstItem = getFileNameFirstItemFromPath(item === null || item === void 0 ? void 0 : item.filename);
+            if (fileNameFirstItem)
+                mySet.add(fileNameFirstItem);
         }
         core.info(`Filename as a set ${mySet.size}`);
         return mySet;
@@ -175,11 +179,11 @@ function annotateGithub(coverageFiles, githubToken) {
         const octokit = new octokit_1.Octokit({ auth: githubToken });
         const pullRequestFiles = yield getPullRequestFiles(octokit);
         const annotations = coverageFiles.reduce((old, current) => {
-            var _a, _b;
             // Only annotate relevant files
-            const rawFileName = (_b = (_a = current.fileName) === null || _a === void 0 ? void 0 : _a.split('/')) === null || _b === void 0 ? void 0 : _b.pop();
-            if (rawFileName && !pullRequestFiles.has(rawFileName))
+            const fileNameFirstItem = getFileNameFirstItemFromPath(current === null || current === void 0 ? void 0 : current.fileName);
+            if (!fileNameFirstItem || !pullRequestFiles.has(fileNameFirstItem)) {
                 return old;
+            }
             current.missingLineNumbers.map(lineNumber => {
                 old.push({
                     path: current.fileName,

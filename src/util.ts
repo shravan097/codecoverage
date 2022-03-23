@@ -41,6 +41,11 @@ export function filterCoverageByFile(coverage: LCovParsed): CoverageFile[] {
       .map(line => line.line)
   }))
 }
+/** input: dist/index.test.ts --> output: index */
+function getFileNameFirstItemFromPath(path: string): string | undefined {
+  const rawFileName = path?.split('/')?.pop()
+  return rawFileName?.split('.')?.[0]
+}
 
 /**
  * https://docs.github.com/en/rest/reference/pulls#list-pull-requests-files
@@ -54,12 +59,11 @@ async function getPullRequestFiles(
     ...github.context.repo,
     pull_number
   })
-  core.info('Pull Request Files')
-  core.info(JSON.stringify(response))
+  core.info(`Pull Request Files Length: ${response.data.length}`)
   const mySet = new Set<string>()
   for (const item of response.data) {
-    const rawFileName = item?.filename?.split('/')?.pop()
-    if (rawFileName) mySet.add(rawFileName)
+    const fileNameFirstItem = getFileNameFirstItemFromPath(item?.filename)
+    if (fileNameFirstItem) mySet.add(fileNameFirstItem)
   }
   core.info(`Filename as a set ${mySet.size}`)
   return mySet
@@ -83,8 +87,10 @@ export async function annotateGithub(
   const pullRequestFiles = await getPullRequestFiles(octokit)
   const annotations = coverageFiles.reduce((old, current) => {
     // Only annotate relevant files
-    const rawFileName = current.fileName?.split('/')?.pop()
-    if (rawFileName && !pullRequestFiles.has(rawFileName)) return old
+    const fileNameFirstItem = getFileNameFirstItemFromPath(current?.fileName)
+    if (!fileNameFirstItem || !pullRequestFiles.has(fileNameFirstItem)) {
+      return old
+    }
     current.missingLineNumbers.map(lineNumber => {
       old.push({
         path: current.fileName,
