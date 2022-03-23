@@ -56,7 +56,7 @@ export async function annotateGithub(
   const octokit = new Octokit({auth: githubToken})
   const response = await octokit.rest.checks.create({
     ...github.context.repo,
-    name: github.context.action,
+    name: 'Annotate',
     head_sha: ref,
     status: 'completed',
     conclusion: 'success',
