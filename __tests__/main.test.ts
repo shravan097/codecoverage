@@ -1,29 +1,191 @@
-import {wait} from '../src/wait'
-import * as process from 'process'
-import * as cp from 'child_process'
-import * as path from 'path'
-import {expect, test} from '@jest/globals'
-
-test('throws invalid number', async () => {
-  const input = parseInt('foo', 10)
-  await expect(wait(input)).rejects.toThrow('milliseconds not a number')
+import {test} from '@jest/globals'
+// import {parseLCov, filterCoverageByFile, annotateGithub} from '../src/util'
+// const sampleParsedCov = [
+//   {
+//     lines: {
+//       found: 6,
+//       hit: 4,
+//       details: [
+//         {
+//           line: 1,
+//           hit: 1
+//         },
+//         {
+//           line: 2,
+//           hit: 1
+//         },
+//         {
+//           line: 5,
+//           hit: 1
+//         },
+//         {
+//           line: 6,
+//           hit: 0
+//         },
+//         {
+//           line: 9,
+//           hit: 1
+//         },
+//         {
+//           line: 10,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     functions: {
+//       hit: 0,
+//       found: 2,
+//       details: [
+//         {
+//           name: '(anonymous_2)',
+//           line: 6,
+//           hit: 0
+//         },
+//         {
+//           name: '(anonymous_3)',
+//           line: 9,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     branches: {
+//       hit: 0,
+//       found: 0,
+//       details: []
+//     },
+//     title: '',
+//     file: 'src/app.controller.ts'
+//   },
+//   {
+//     lines: {
+//       found: 4,
+//       hit: 0,
+//       details: [
+//         {
+//           line: 1,
+//           hit: 0
+//         },
+//         {
+//           line: 2,
+//           hit: 0
+//         },
+//         {
+//           line: 3,
+//           hit: 0
+//         },
+//         {
+//           line: 10,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     functions: {
+//       hit: 0,
+//       found: 0,
+//       details: []
+//     },
+//     branches: {
+//       hit: 0,
+//       found: 0,
+//       details: []
+//     },
+//     title: '',
+//     file: 'src/app.module.ts'
+//   },
+//   {
+//     lines: {
+//       found: 3,
+//       hit: 2,
+//       details: [
+//         {
+//           line: 1,
+//           hit: 1
+//         },
+//         {
+//           line: 4,
+//           hit: 1
+//         },
+//         {
+//           line: 6,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     functions: {
+//       hit: 0,
+//       found: 1,
+//       details: [
+//         {
+//           name: '(anonymous_1)',
+//           line: 5,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     branches: {
+//       hit: 0,
+//       found: 0,
+//       details: []
+//     },
+//     title: '',
+//     file: 'src/app.service.ts'
+//   },
+//   {
+//     lines: {
+//       found: 5,
+//       hit: 0,
+//       details: [
+//         {
+//           line: 1,
+//           hit: 0
+//         },
+//         {
+//           line: 2,
+//           hit: 0
+//         },
+//         {
+//           line: 5,
+//           hit: 0
+//         },
+//         {
+//           line: 6,
+//           hit: 0
+//         },
+//         {
+//           line: 8,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     functions: {
+//       hit: 0,
+//       found: 1,
+//       details: [
+//         {
+//           name: 'bootstrap',
+//           line: 4,
+//           hit: 0
+//         }
+//       ]
+//     },
+//     branches: {
+//       hit: 0,
+//       found: 0,
+//       details: []
+//     },
+//     title: '',
+//     file: 'src/main.ts'
+//   }
+// ] as any
+test('main', async () => {
+  console.log('testing')
 })
 
-test('wait 500 ms', async () => {
-  const start = new Date()
-  await wait(500)
-  const end = new Date()
-  var delta = Math.abs(end.getTime() - start.getTime())
-  expect(delta).toBeGreaterThan(450)
-})
+// test('filterCoverageByFile', function () {
+//   const x = filterCoverageByFile(sampleParsedCov)
+//   console.log(JSON.stringify(x, null, 2))
+// })
 
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = '500'
-  const np = process.execPath
-  const ip = path.join(__dirname, '..', 'lib', 'main.js')
-  const options: cp.ExecFileSyncOptions = {
-    env: process.env
-  }
-  console.log(cp.execFileSync(np, [ip], options).toString())
-})
+// test('annotateGithub', async function () {
+//   const j = await annotateGithub('' as any, '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')
+// })
