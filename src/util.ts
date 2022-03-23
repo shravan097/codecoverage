@@ -57,7 +57,10 @@ async function getPullRequestFiles(
   core.info('Pull Request Files')
   core.info(JSON.stringify(response))
   const mySet = new Set<string>()
-  response.data.map(item => mySet.add(item.filename))
+  for (const item of response.data) {
+    const rawFileName = item?.filename?.split('/')?.pop()
+    if (rawFileName) mySet.add(rawFileName)
+  }
   core.info(`Filename as a set ${mySet.size}`)
   return mySet
 }
@@ -78,10 +81,10 @@ export async function annotateGithub(
 
   const octokit = new Octokit({auth: githubToken})
   const pullRequestFiles = await getPullRequestFiles(octokit)
-  core.info(JSON.stringify(pullRequestFiles))
   const annotations = coverageFiles.reduce((old, current) => {
     // Only annotate relevant files
-    if (!pullRequestFiles.has(current.fileName)) return old
+    const rawFileName = current.fileName?.split('/')?.pop()
+    if (rawFileName && !pullRequestFiles.has(rawFileName)) return old
     current.missingLineNumbers.map(lineNumber => {
       old.push({
         path: current.fileName,
@@ -95,6 +98,7 @@ export async function annotateGithub(
     })
     return old
   }, [] as unknown as [Object])
+  core.info(`Annotation count: ${annotations.length}`)
   core.info(JSON.stringify(annotations.splice(5)))
   const response = await octokit.rest.checks.create({
     ...github.context.repo,
