@@ -1,5 +1,10 @@
 name: 'build-test-coverage'
-on: [push, pull_request] # rebuild any PRs and main branch changes
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'releases/*'
 
 jobs:
   build: # make sure build/ci work properly
