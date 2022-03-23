@@ -1,4 +1,5 @@
 import * as NodeUtil from 'util'
+import * as core from '@actions/core'
 import * as fs from 'fs'
 import * as github from '@actions/github'
 import {Octokit} from 'octokit'
@@ -71,6 +72,24 @@ export async function annotateGithub(
 
   const octokit = new Octokit({auth: githubToken})
   const pullRequestFiles = await getPullRequestFiles(octokit)
+  core.info(JSON.stringify(pullRequestFiles))
+  const annotations = coverageFiles.reduce((old, current) => {
+    // Only annotate relevant files
+    if (!pullRequestFiles.has(current.fileName)) return old
+    current.missingLineNumbers.map(lineNumber => {
+      old.push({
+        path: current.fileName,
+        start_line: lineNumber,
+        end_line: lineNumber,
+        start_column: 1,
+        end_column: 1,
+        annotation_level: 'warning',
+        message: 'this line is not covered by test'
+      })
+    })
+    return old
+  }, [] as unknown as [Object])
+  core.info(JSON.stringify(annotations))
   const response = await octokit.rest.checks.create({
     ...github.context.repo,
     name: 'Annotate',
@@ -80,22 +99,7 @@ export async function annotateGithub(
     output: {
       title: 'Coverage Tool',
       summary: 'Missing Coverage',
-      annotations: coverageFiles.reduce((old, current) => {
-        // Only annotate relevant files
-        if (!pullRequestFiles.has(current.fileName)) return old
-        current.missingLineNumbers.map(lineNumber => {
-          old.push({
-            path: current.fileName,
-            start_line: lineNumber,
-            end_line: lineNumber,
-            start_column: 1,
-            end_column: 1,
-            annotation_level: 'warning',
-            message: 'this line is not covered by test'
-          })
-        })
-        return old
-      }, [] as unknown as [Object])
+      annotations
     }
   })
   return response
