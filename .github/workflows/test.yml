@@ -1,8 +1,6 @@
 name: 'build-test'
 on: # rebuild any PRs and main branch changes
   pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
@@ -32,8 +30,7 @@ jobs:
           npm run test:cov
       - run: echo ${{ github.event.issue}}
       - run: echo ${{ github.sha}}
-      - if: ${{ github.event.issue.pull_request }}
-        uses: ./
+      - uses: ./
         with:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           LCOV_FILE_PATH: "./coverage/lcov.info"

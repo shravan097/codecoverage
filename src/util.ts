@@ -48,11 +48,16 @@ export async function annotateGithub(
   if (!githubToken) {
     throw Error('GITHUB_TOKEN is missing')
   }
+  const pullRequest = github.context.payload.pull_request
+  const ref = pullRequest
+    ? pullRequest.head.ref
+    : github.context.ref.replace('refs/heads/', '')
+
   const octokit = new Octokit({auth: githubToken})
   const response = await octokit.rest.checks.create({
     ...github.context.repo,
     name: github.context.action,
-    head_sha: github.context.sha,
+    head_sha: ref,
     status: 'completed',
     conclusion: 'success',
     output: {
