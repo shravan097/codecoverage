@@ -30,6 +30,8 @@ jobs:
           npm run package
       - run: |
           npm run test:cov
+      - run: echo ${{ github.event.issue}}
+      - run: echo ${{ github.sha}}
       - if: ${{ github.event.issue.pull_request }}
         uses: ./
         with:
