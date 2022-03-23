@@ -172,7 +172,8 @@ function annotateGithub(coverageFiles, githubToken) {
         core.info(JSON.stringify(pullRequestFiles));
         const annotations = coverageFiles.reduce((old, current) => {
             // Only annotate relevant files
-            //if (!pullRequestFiles.has(current.fileName)) return old
+            if (!pullRequestFiles.has(current.fileName))
+                return old;
             current.missingLineNumbers.map(lineNumber => {
                 old.push({
                     path: current.fileName,
