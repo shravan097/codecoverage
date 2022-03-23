@@ -55,6 +55,7 @@ async function getPullRequestFiles(
     pull_number,
     per_page: 99 // only support 99 files
   })
+  core.info(JSON.stringify(response.data.splice(5)))
   return new Set(response.data.map(item => item.filename))
 }
 
@@ -66,6 +67,7 @@ export async function annotateGithub(
     throw Error('GITHUB_TOKEN is missing')
   }
   const pullRequest = github.context.payload.pull_request
+  core.info(`Pull request number ${github.context.issue.number}`)
   const ref = pullRequest
     ? pullRequest.head.ref
     : github.context.ref.replace('refs/heads/', '')
@@ -75,7 +77,7 @@ export async function annotateGithub(
   core.info(JSON.stringify(pullRequestFiles))
   const annotations = coverageFiles.reduce((old, current) => {
     // Only annotate relevant files
-    if (!pullRequestFiles.has(current.fileName)) return old
+    //if (!pullRequestFiles.has(current.fileName)) return old
     current.missingLineNumbers.map(lineNumber => {
       old.push({
         path: current.fileName,
@@ -89,7 +91,7 @@ export async function annotateGithub(
     })
     return old
   }, [] as unknown as [Object])
-  core.info(JSON.stringify(annotations))
+  core.info(JSON.stringify(annotations.splice(5)))
   const response = await octokit.rest.checks.create({
     ...github.context.repo,
     name: 'Annotate',
@@ -102,5 +104,6 @@ export async function annotateGithub(
       annotations
     }
   })
+  core.info(response.data.output.annotations_url)
   return response
 }
