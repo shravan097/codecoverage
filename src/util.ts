@@ -52,6 +52,7 @@ export async function annotateGithub(
   const response = await octokit.rest.checks.create({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
+    name: 'Coverage Checker',
     status: 'completed',
     conclusion: 'success',
     head_sha: github.context.sha,
@@ -63,7 +64,6 @@ export async function annotateGithub(
           old.push({
             path: current.fileName,
             start_line: lineNumber,
-            name: 'Coverage Checker',
             end_line: lineNumber,
             annotation_level: 'notice',
             message: 'this line is not covered by test'
