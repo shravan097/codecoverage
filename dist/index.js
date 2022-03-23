@@ -52,7 +52,6 @@ function run() {
             core.info('Parsing done');
             const coverageByFile = (0, util_1.filterCoverageByFile)(parsedCov);
             core.info('Filter done');
-            core.info(JSON.stringify(coverageByFile, null, 2));
             const res = yield (0, util_1.annotateGithub)(coverageByFile, GITHUB_TOKEN);
             core.info('Annotation done');
             core.info(JSON.stringify(res, null, 2));
@@ -60,6 +59,7 @@ function run() {
         catch (error) {
             if (error instanceof Error)
                 core.setFailed(error.message);
+            core.info(JSON.stringify(error));
         }
     });
 }
@@ -132,6 +132,19 @@ function filterCoverageByFile(coverage) {
     });
 }
 exports.filterCoverageByFile = filterCoverageByFile;
+/**
+ * https://docs.github.com/en/rest/reference/pulls#list-pull-requests-files
+ * Todo update types
+ *  */
+function getPullRequestFiles(octokitClient) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const pull_number = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number;
+        const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number, per_page: 99 // only support 99 files
+         }));
+        return new Set(response.data.map(item => item.filename));
+    });
+}
 function annotateGithub(coverageFiles, githubToken) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!githubToken) {
@@ -142,10 +155,14 @@ function annotateGithub(coverageFiles, githubToken) {
             ? pullRequest.head.ref
             : github.context.ref.replace('refs/heads/', '');
         const octokit = new octokit_1.Octokit({ auth: githubToken });
+        const pullRequestFiles = yield getPullRequestFiles(octokit);
         const response = yield octokit.rest.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'Annotate', head_sha: ref, status: 'completed', conclusion: 'success', output: {
                 title: 'Coverage Tool',
                 summary: 'Missing Coverage',
                 annotations: coverageFiles.reduce((old, current) => {
+                    // Only annotate relevant files
+                    if (!pullRequestFiles.has(current.fileName))
+                        return old;
                     current.missingLineNumbers.map(lineNumber => {
                         old.push({
                             path: current.fileName,
