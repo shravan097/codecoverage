@@ -163,7 +163,7 @@ function getPullRequestFiles(octokitClient) {
                 mySet.add(fileNameFirstItem);
         }
         core.info(`Filename as a set ${mySet.size}`);
-        core.info(JSON.stringify((_a = Array.from(mySet)) === null || _a === void 0 ? void 0 : _a.splice(10)));
+        core.info(JSON.stringify((_a = Array.from(mySet)) === null || _a === void 0 ? void 0 : _a.splice(0, 10)));
         return mySet;
     });
 }
@@ -174,16 +174,19 @@ function annotateGithub(coverageFiles, githubToken) {
         }
         const pullRequest = github.context.payload.pull_request;
         core.info(`Coverage files length ${coverageFiles === null || coverageFiles === void 0 ? void 0 : coverageFiles.length}`);
-        core.info(JSON.stringify(coverageFiles === null || coverageFiles === void 0 ? void 0 : coverageFiles.splice(10)));
+        core.info(JSON.stringify(coverageFiles === null || coverageFiles === void 0 ? void 0 : coverageFiles.splice(0, 10)));
         core.info(`Pull request number ${github.context.issue.number}`);
         const ref = pullRequest
             ? pullRequest.head.ref
             : github.context.ref.replace('refs/heads/', '');
         const octokit = new octokit_1.Octokit({ auth: githubToken });
         const pullRequestFiles = yield getPullRequestFiles(octokit);
+        const logs = [];
         const annotations = coverageFiles.reduce((old, current) => {
             // Only annotate relevant files
+            const log = {};
             const fileNameFirstItem = getFileNameFirstItemFromPath(current === null || current === void 0 ? void 0 : current.fileName);
+            log['fileName'] = fileNameFirstItem;
             if (!fileNameFirstItem || !pullRequestFiles.has(fileNameFirstItem)) {
                 return old;
             }
@@ -198,10 +201,14 @@ function annotateGithub(coverageFiles, githubToken) {
                     message: 'this line is not covered by test'
                 });
             });
+            log['missingNumbers'] = current.missingLineNumbers.length;
+            log['oldSize'] = old.length;
+            logs.push(log);
             return old;
         }, []);
+        core.info(JSON.stringify(logs));
         core.info(`Annotation count: ${annotations.length}`);
-        core.info(JSON.stringify(annotations.splice(5)));
+        core.info(JSON.stringify(annotations.splice(0, 5)));
         const response = yield octokit.rest.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'Annotate', head_sha: ref, status: 'completed', conclusion: 'success', output: {
                 title: 'Coverage Tool',
                 summary: 'Missing Coverage',

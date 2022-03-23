@@ -66,7 +66,7 @@ async function getPullRequestFiles(
     if (fileNameFirstItem) mySet.add(fileNameFirstItem)
   }
   core.info(`Filename as a set ${mySet.size}`)
-  core.info(JSON.stringify(Array.from(mySet)?.splice(10)))
+  core.info(JSON.stringify(Array.from(mySet)?.splice(0, 10)))
   return mySet
 }
 
@@ -79,7 +79,7 @@ export async function annotateGithub(
   }
   const pullRequest = github.context.payload.pull_request
   core.info(`Coverage files length ${coverageFiles?.length}`)
-  core.info(JSON.stringify(coverageFiles?.splice(10)))
+  core.info(JSON.stringify(coverageFiles?.splice(0, 10)))
   core.info(`Pull request number ${github.context.issue.number}`)
   const ref = pullRequest
     ? pullRequest.head.ref
@@ -87,9 +87,12 @@ export async function annotateGithub(
 
   const octokit = new Octokit({auth: githubToken})
   const pullRequestFiles = await getPullRequestFiles(octokit)
+  const logs: Object[] = []
   const annotations = coverageFiles.reduce((old, current) => {
     // Only annotate relevant files
+    const log = {}
     const fileNameFirstItem = getFileNameFirstItemFromPath(current?.fileName)
+    log['fileName'] = fileNameFirstItem
     if (!fileNameFirstItem || !pullRequestFiles.has(fileNameFirstItem)) {
       return old
     }
@@ -104,10 +107,14 @@ export async function annotateGithub(
         message: 'this line is not covered by test'
       })
     })
+    log['missingNumbers'] = current.missingLineNumbers.length
+    log['oldSize'] = old.length
+    logs.push(log)
     return old
   }, [] as unknown as [Object])
+  core.info(JSON.stringify(logs))
   core.info(`Annotation count: ${annotations.length}`)
-  core.info(JSON.stringify(annotations.splice(5)))
+  core.info(JSON.stringify(annotations.splice(0, 5)))
   const response = await octokit.rest.checks.create({
     ...github.context.repo,
     name: 'Annotate',
