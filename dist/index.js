@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 3109:
+/***/ 9139:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -39,10 +39,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.play = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const util_1 = __nccwpck_require__(4024);
-function run() {
+const lcov_1 = __nccwpck_require__(7880);
+const github_1 = __nccwpck_require__(6863);
+/** Starting Point of the Github Action*/
+function play() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (github.context.eventName !== 'pull_request') {
@@ -52,13 +55,25 @@ function run() {
             core.info('Performing Code Coverage Analysis');
             const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
             const LCOV_FILE_PATH = core.getInput('LCOV_FILE_PATH');
-            const parsedCov = yield (0, util_1.parseLCov)(LCOV_FILE_PATH);
+            if (!GITHUB_TOKEN || !LCOV_FILE_PATH) {
+                throw new Error('Required Inputs not provided');
+            }
+            // 1. Parse coverage file
+            const parsedCov = yield (0, lcov_1.parseLCov)(LCOV_FILE_PATH);
             core.info('Parsing done');
-            const coverageByFile = (0, util_1.filterCoverageByFile)(parsedCov);
+            // 2. Filter Coverage By File Name
+            const coverageByFile = (0, lcov_1.filterCoverageByFile)(parsedCov);
             core.info('Filter done');
-            const res = yield (0, util_1.annotateGithub)(coverageByFile, GITHUB_TOKEN);
+            const githubUtil = new github_1.Github(GITHUB_TOKEN);
+            // 3. Get current pull request files
+            const pullRequestFiles = yield githubUtil.getPullRequestFiles();
+            const annotations = githubUtil.buildAnnotations(coverageByFile, pullRequestFiles);
+            // 4. Annotate in github
+            yield githubUtil.annotate({
+                referenceCommitHash: githubUtil.getPullRequestRef(),
+                annotations
+            });
             core.info('Annotation done');
-            core.info(JSON.stringify(res, null, 2));
         }
         catch (error) {
             if (error instanceof Error)
@@ -67,12 +82,171 @@ function run() {
         }
     });
 }
+exports.play = play;
+
+
+/***/ }),
+
+/***/ 3109:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const action_1 = __nccwpck_require__(9139);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (0, action_1.play)();
+    });
+}
 run();
 
 
 /***/ }),
 
-/***/ 4024:
+/***/ 1266:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getFileNameFirstItemFromPath = void 0;
+/** input: dist/index.test.ts --> output: index */
+function getFileNameFirstItemFromPath(path) {
+    var _a, _b;
+    const rawFileName = (_a = path === null || path === void 0 ? void 0 : path.split('/')) === null || _a === void 0 ? void 0 : _a.pop();
+    return (_b = rawFileName === null || rawFileName === void 0 ? void 0 : rawFileName.split('.')) === null || _b === void 0 ? void 0 : _b[0];
+}
+exports.getFileNameFirstItemFromPath = getFileNameFirstItemFromPath;
+
+
+/***/ }),
+
+/***/ 6863:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Github = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
+const octokit_1 = __nccwpck_require__(7467);
+const general_1 = __nccwpck_require__(1266);
+class Github {
+    constructor(token) {
+        if (!token) {
+            throw new Error('GITHUB_TOKEN is missing');
+        }
+        this.client = new octokit_1.Octokit({ auth: token });
+    }
+    getPullRequestRef() {
+        const pullRequest = github.context.payload.pull_request;
+        return pullRequest
+            ? pullRequest.head.ref
+            : github.context.ref.replace('refs/heads/', '');
+    }
+    /**
+     * https://docs.github.com/en/rest/reference/pulls#list-pull-requests-files
+     * Todo update types
+     *  */
+    getPullRequestFiles() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const pull_number = github.context.issue.number;
+            const response = yield this.client.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number }));
+            core.info(`Pull Request Files Length: ${response.data.length}`);
+            const mySet = new Set();
+            for (const item of response.data) {
+                const fileNameFirstItem = (0, general_1.getFileNameFirstItemFromPath)(item === null || item === void 0 ? void 0 : item.filename);
+                if (fileNameFirstItem)
+                    mySet.add(fileNameFirstItem);
+            }
+            core.info(`Filename as a set ${mySet.size}`);
+            return mySet;
+        });
+    }
+    annotate(input) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Todo: make this generic
+            const response = yield this.client.rest.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'Annotate', head_sha: input.referenceCommitHash, status: 'completed', conclusion: 'success', output: {
+                    title: 'Coverage Tool',
+                    summary: 'Missing Coverage',
+                    annotations: input.annotations
+                } }));
+            core.info(response.data.output.annotations_url);
+            return response.status;
+        });
+    }
+    buildAnnotations(coverageFiles, pullRequestFiles) {
+        const annotations = [];
+        for (const current of coverageFiles) {
+            // Only annotate relevant files
+            const fileNameFirstItem = (0, general_1.getFileNameFirstItemFromPath)(current === null || current === void 0 ? void 0 : current.fileName);
+            if (fileNameFirstItem && pullRequestFiles.has(fileNameFirstItem)) {
+                current.missingLineNumbers.map(lineNumber => {
+                    annotations.push({
+                        path: current.fileName,
+                        start_line: lineNumber,
+                        end_line: lineNumber,
+                        start_column: 1,
+                        end_column: 1,
+                        annotation_level: 'warning',
+                        message: 'this line is not covered by test'
+                    });
+                });
+            }
+        }
+        core.info(`Annotation count: ${annotations.length}`);
+        return annotations;
+    }
+}
+exports.Github = Github;
+
+
+/***/ }),
+
+/***/ 7880:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -113,11 +287,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.annotateGithub = exports.filterCoverageByFile = exports.parseLCov = void 0;
+exports.filterCoverageByFile = exports.parseLCov = void 0;
 const NodeUtil = __importStar(__nccwpck_require__(3837));
 const fs = __importStar(__nccwpck_require__(7147));
-const github = __importStar(__nccwpck_require__(5438));
-const octokit_1 = __nccwpck_require__(7467);
 const lcov_parse_1 = __importDefault(__nccwpck_require__(7454));
 function parseLCov(lcovPath) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -140,55 +312,6 @@ function filterCoverageByFile(coverage) {
     });
 }
 exports.filterCoverageByFile = filterCoverageByFile;
-/**
- * https://docs.github.com/en/rest/reference/pulls#list-pull-requests-files
- * Todo update types
- *  */
-function getPullRequestFiles(octokitClient) {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const pull_number = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number;
-        const response = yield octokitClient.rest.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number, per_page: 99 // only support 99 files
-         }));
-        return new Set(response.data.map(item => item.filename));
-    });
-}
-function annotateGithub(coverageFiles, githubToken) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!githubToken) {
-            throw Error('GITHUB_TOKEN is missing');
-        }
-        const pullRequest = github.context.payload.pull_request;
-        const ref = pullRequest
-            ? pullRequest.head.ref
-            : github.context.ref.replace('refs/heads/', '');
-        const octokit = new octokit_1.Octokit({ auth: githubToken });
-        const pullRequestFiles = yield getPullRequestFiles(octokit);
-        const response = yield octokit.rest.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'Annotate', head_sha: ref, status: 'completed', conclusion: 'success', output: {
-                title: 'Coverage Tool',
-                summary: 'Missing Coverage',
-                annotations: coverageFiles.reduce((old, current) => {
-                    // Only annotate relevant files
-                    if (!pullRequestFiles.has(current.fileName))
-                        return old;
-                    current.missingLineNumbers.map(lineNumber => {
-                        old.push({
-                            path: current.fileName,
-                            start_line: lineNumber,
-                            end_line: lineNumber,
-                            start_column: 1,
-                            end_column: 1,
-                            annotation_level: 'warning',
-                            message: 'this line is not covered by test'
-                        });
-                    });
-                    return old;
-                }, [])
-            } }));
-        return response;
-    });
-}
-exports.annotateGithub = annotateGithub;
 
 
 /***/ }),

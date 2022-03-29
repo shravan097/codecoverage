@@ -1,5 +1,5 @@
 import {test} from '@jest/globals'
-import {parseLCov, filterCoverageByFile, annotateGithub} from '../src/util'
+import {filterCoverageByFile} from '../src/utils/lcov'
 const sampleParsedCov = [
   {
     lines: {
