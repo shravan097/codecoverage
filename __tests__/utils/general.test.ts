@@ -1,8 +1,6 @@
 import {test} from '@jest/globals'
 
-
-
-import { getFileNameFirstItemFromPath } from '../../src/utils/general'
+import {getFileNameFirstItemFromPath} from '../../src/utils/general'
 test.only('getFileNameFirstItemFromPath', function () {
   const testCases = [
     {

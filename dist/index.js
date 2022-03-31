@@ -64,7 +64,7 @@ function play() {
             // 2. Filter Coverage By File Name
             const coverageByFile = (0, lcov_1.filterCoverageByFile)(parsedCov);
             core.info('Filter done');
-            const githubUtil = new github_1.Github(GITHUB_TOKEN);
+            const githubUtil = new github_1.GithubUtil(GITHUB_TOKEN);
             // 3. Get current pull request files
             const pullRequestFiles = yield githubUtil.getPullRequestFiles();
             const annotations = githubUtil.buildAnnotations(coverageByFile, pullRequestFiles);
@@ -169,12 +169,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Github = void 0;
+exports.GithubUtil = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const octokit_1 = __nccwpck_require__(7467);
 const general_1 = __nccwpck_require__(1266);
-class Github {
+class GithubUtil {
     constructor(token) {
         if (!token) {
             throw new Error('GITHUB_TOKEN is missing');
@@ -241,7 +241,7 @@ class Github {
         return annotations;
     }
 }
-exports.Github = Github;
+exports.GithubUtil = GithubUtil;
 
 
 /***/ }),
