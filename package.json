@@ -12,7 +12,8 @@
     "package": "ncc build --source-map --license licenses.txt --no-cache",
     "test": "jest",
     "test:cov": "jest --coverage",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run lint && npm run package && npm test",
+    "lcov": "lcov-parse ./coverage/lcov.info"
   },
   "repository": {
     "type": "git",
