@@ -1,7 +1,6 @@
 import {test} from '@jest/globals'
-import {Github} from '../../src/utils/github'
+import {GithubUtil} from '../../src/utils/github'
 test('filterCoverageByFile', function () {
-
-  const github = new Github('12345')
-  console.log('hi')
+  // todo
+  const github = new GithubUtil('12345')
 })
