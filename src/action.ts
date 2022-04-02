@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {filterCoverageByFile, parseLCov} from './utils/lcov'
-import {Github as GithubUtil} from './utils/github'
+import {GithubUtil} from './utils/github'
 
 /** Starting Point of the Github Action*/
 export async function play(): Promise<void> {

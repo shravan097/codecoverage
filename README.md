@@ -1,12 +1,14 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+[![Coverage Status](https://coveralls.io/repos/github/shravan097/codecoverage/badge.svg?branch=main)](https://coveralls.io/github/shravan097/codecoverage?branch=main)
+
+![Build Status](https://github.com/shravan097/codecoverage/actions/workflows/test.yml/badge.svg)
 
 # Code Coverage Annotation 
 
-Generate code coverage annotation in pull request.
+Generate code coverage annotation in pull request within Github Action Workflow environment. No data is sent to an external server.
 
-Test file and code file name should be same. (ie. `index.ts` should have test file named `index.test.ts`)
+**NOTE**: 
+- Test file and code file name should be same. (ie. `index.ts` should have test file named `index.test.ts`, the test file may exist in any directory)
+- You must invoke the function/class at least once. 
 
 
 ## Inputs
@@ -19,10 +21,11 @@ Test file and code file name should be same. (ie. `index.ts` should have test fi
 
 ## Example
 ```yaml
-uses: ./
-with:
-  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  LCOV_FILE_PATH: "./coverage/lcov.info"
+- name: Code Coverage Annotation Line by Line
+  uses: shravan097/codecoverage@release/v0.5.1
+  with:
+    GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    LCOV_FILE_PATH: "./coverage/lcov.info"
 ```
 
 ## Code in Main

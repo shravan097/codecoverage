@@ -4,7 +4,7 @@ import {CoverageFile} from './lcov'
 import {Octokit} from 'octokit'
 import {getFileNameFirstItemFromPath} from './general'
 
-export class Github {
+export class GithubUtil {
   private client: Octokit
 
   constructor(token: string) {
