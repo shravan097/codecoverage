@@ -1,6 +1,6 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+[![Coverage Status](https://coveralls.io/repos/github/shravan097/codecoverage/badge.svg?branch=main)](https://coveralls.io/github/shravan097/codecoverage?branch=main)
+
+![Build Status](https://github.com/shravan097/codecoverage/actions/workflows/test.yml/badge.svg)
 
 # Code Coverage Annotation 
 
