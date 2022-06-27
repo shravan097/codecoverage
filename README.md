@@ -10,6 +10,9 @@ Generate code coverage annotation in pull request within Github Action Workflow 
 - Test file and code file name should be same. (ie. `index.ts` should have test file named `index.test.ts`, the test file may exist in any directory)
 - You must invoke the function/class at least once. 
 
+## Sample PR Annotation
+<img width="1069" alt="Screen Shot 2022-06-26 at 7 11 21 PM" src="https://user-images.githubusercontent.com/23582455/175847244-dbed2fb3-70be-4bcd-a7d0-64197951c517.png">
+
 
 ## Inputs
 
